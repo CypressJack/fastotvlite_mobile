@@ -36,8 +36,9 @@ class SideInfo extends StatelessWidget {
 
   // private:
   String _getDuration(int msec) {
-    final now = DateTime.now();
-    return TimeParser.hm(msec - now.timeZoneOffset.inMilliseconds);
+    // final now = DateTime.now();
+    // return TimeParser.hm(msec - now.timeZoneOffset.inMilliseconds);
+    return 'time';
   }
 
   Widget _sideDescription(String title, {String? data}) {

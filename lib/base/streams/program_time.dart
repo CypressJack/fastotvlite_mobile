@@ -98,5 +98,6 @@ class LiveTimeState<T extends LiveTime> extends State<T> {
     }
   }
 
-  String _parse(int time) => TimeParser.hms(time - DateTime.now().timeZoneOffset.inMilliseconds);
+  String _parse(int time) => 'time';
+  // String _parse(int time) => TimeParser.hms(time - DateTime.now().timeZoneOffset.inMilliseconds);
 }

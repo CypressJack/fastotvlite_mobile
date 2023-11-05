@@ -2,6 +2,7 @@ import 'package:fastotv_dart/commands_info/channel_info.dart';
 import 'package:fastotv_dart/commands_info/epg_info.dart';
 import 'package:fastotv_dart/commands_info/meta_url.dart';
 import 'package:fastotv_dart/commands_info/movie_info.dart';
+import 'package:fastotv_dart/commands_info/subtitles.dart';
 import 'package:fastotv_dart/commands_info/vod_info.dart';
 import 'package:fastotvlite/channels/live_stream.dart';
 import 'package:fastotvlite/channels/vod_stream.dart';
@@ -44,7 +45,8 @@ class M3UParser {
     }
 
     if (type == StreamType.Live) {
-      return AddStreamResponse(type: type, channels: streams as List<LiveStream>);
+      return AddStreamResponse(
+          type: type, channels: streams as List<LiveStream>);
     }
     return AddStreamResponse(type: type, vods: streams as List<VodStream>);
   }
@@ -53,19 +55,65 @@ class M3UParser {
   LiveStream _createLiveStream(Map<String, dynamic> m3u) {
     final settings = locator<LocalStorageService>();
     final String _epgLink = settings.epgLink();
-    final _epg =
-        EpgInfo(m3u[ID_FIELD], [m3u[PRIMARY_URL_FIELD]], m3u[NAME_FIELD], m3u[ICON_FIELD], []);
-    final _channelInfo = ChannelInfo(m3u[ID_FIELD], m3u[GROUP_FIELD], 21, false, 0, 0, false, _epg,
-        true, true, [], 0, <MetaUrl>[], 0, true);
+    final _epg = EpgInfo(m3u[ID_FIELD], [m3u[PRIMARY_URL_FIELD]],
+        m3u[NAME_FIELD], m3u[ICON_FIELD], []);
+    final _channelInfo = ChannelInfo(
+        id: m3u[ID_FIELD],
+        groups: m3u[GROUP_FIELD],
+        iarc: 21,
+        favorite: false,
+        recent: 0,
+        interruptTime: 0,
+        locked: false,
+        epg: _epg,
+        video: true,
+        audio: true,
+        parts: [],
+        viewCount: 0,
+        meta: <MetaUrl>[],
+        price: 0.0,
+        archive: true,
+        subtitles: <StreamSubtitles>[],
+        createdDate: 0);
 
     return LiveStream(_channelInfo, _epgLink);
   }
 
   VodStream _createVodStream(Map<String, dynamic> m3u) {
-    final _movieInfo = MovieInfo([m3u[PRIMARY_URL_FIELD]], '', m3u[NAME_FIELD], m3u[ICON_FIELD], '',
-        '', 0.0, 0, '', 0, MovieType.VODS);
-    final vodInfo = VodInfo(m3u[ID_FIELD], m3u[GROUP_FIELD], 21, false, 0, 0, false, _movieInfo,
-        true, true, [], 0, <MetaUrl>[], 0);
+    final _movieInfo = MovieInfo(
+        urls: [m3u[PRIMARY_URL_FIELD]],
+        description: '',
+        displayName: m3u[NAME_FIELD],
+        backgroundIcon: m3u[ICON_FIELD],
+        trailerUrl: '',
+        previewIcon: '',
+        userScore: 0.0,
+        primeDate: 0,
+        country: '',
+        duration: 0,
+        type: MovieType.VODS,
+        directors: <String>[],
+        cast: <String>[],
+        production: <String>[],
+        genres: <String>[]);
+    final vodInfo = VodInfo(
+        m3u[ID_FIELD],
+        m3u[GROUP_FIELD],
+        21,
+        false,
+        0,
+        0,
+        false,
+        _movieInfo,
+        true,
+        true,
+        [],
+        0,
+        <MetaUrl>[],
+        <StreamSubtitles>[],
+        0,
+        0.0,
+        "");
 
     return VodStream(vodInfo);
   }
@@ -100,7 +148,8 @@ class M3UParser {
     final List<String> _infoAndLink = channel.split('\n');
     final String _info = _infoAndLink[0];
     final List<String> _tagAndName = _info.split(',');
-    final _TagsM3U _tagList = _splitTag(_info.substring(0, _info.length - _tagAndName.last.length));
+    final _TagsM3U _tagList =
+        _splitTag(_info.substring(0, _info.length - _tagAndName.last.length));
 
     return {
       ID_FIELD: _tagList.id,
